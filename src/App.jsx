@@ -1,138 +1,148 @@
-import React, { useState, useTransition, useId } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   increment,
-  decrement,
   incrementByAmount,
-  reset,
+  decrement,
 } from "./features/counterSlice";
 
-// Production spring config: stiff, non-bouncy, instantaneous tactile feel
-const SPRING_TRANSITION = {
-  type: "spring",
-  stiffness: 500,
-  damping: 30,
-  mass: 0.5,
-};
-
-export default function App() {
+const App = () => {
   const [value, setValue] = useState("");
-  const [, startTransition] = useTransition();
-  const inputId = useId();
-
   const count = useSelector((state) => state.counter.value);
   const dispatch = useDispatch();
 
-  const handleStepSubmit = (e) => {
-    e.preventDefault();
-    const parsed = parseInt(value, 10);
-    if (Number.isNaN(parsed) || parsed === 0) return;
-
-    // Offload Redux state dispatch to non-blocking transition for high frame-rate UI
-    startTransition(() => {
-      dispatch(incrementByAmount(parsed));
+  const handleIncrementByAmount = () => {
+    const numValue = Number(value);
+    if (!isNaN(numValue)) {
+      dispatch(incrementByAmount(numValue));
       setValue("");
-    });
+    }
   };
 
   return (
-    <main className="min-h-screen bg-[#090A0F] text-[#E2E8F0] flex flex-col items-center justify-center p-4 font-mono antialiased selection:bg-indigo-500/20 selection:text-indigo-300">
-      <div className="w-full max-w-[360px] bg-[#11131F] border border-white/[0.08] rounded-xl p-5 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.7)] space-y-5">
-        {/* Header Metadata */}
-        <header className="flex items-center justify-between text-[11px] text-slate-500 tracking-wider uppercase border-b border-white/[0.06] pb-3">
-          <span className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
-            Counter_Store
-          </span>
-          <span className="text-[10px] bg-white/[0.04] border border-white/[0.06] px-1.5 py-0.5 rounded text-slate-400">
-            RTK v2.0
-          </span>
-        </header>
+    <div style={styles.container}>
+      <div style={styles.card}>
+        <h2 style={styles.subtitle}>Redux Counter</h2>
+        <h1 style={styles.counterDisplay}>{count}</h1>
 
-        {/* Tabular Animated Display */}
-        <section className="py-2 flex flex-col items-center justify-center">
-          <div className="relative h-16 w-full flex items-center justify-center overflow-hidden">
-            <AnimatePresence mode="popLayout" initial={false}>
-              <motion.span
-                key={count}
-                initial={{ opacity: 0, y: count > 0 ? 16 : -16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: count > 0 ? -16 : 16 }}
-                transition={SPRING_TRANSITION}
-                className="text-5xl font-extrabold tracking-tight text-white font-mono tabular-nums absolute"
-              >
-                {count}
-              </motion.span>
-            </AnimatePresence>
-          </div>
-        </section>
-
-        {/* Primary Controls */}
-        <div className="grid grid-cols-2 gap-2">
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            transition={SPRING_TRANSITION}
+        <div style={styles.buttonGroup}>
+          <button
+            style={styles.iconButton}
             onClick={() => dispatch(decrement())}
-            aria-label="Decrement count"
-            className="h-10 bg-white/[0.03] hover:bg-white/[0.08] active:bg-white/[0.12] border border-white/[0.08] text-slate-200 rounded-lg text-xs font-semibold tracking-wide transition-colors duration-75 flex items-center justify-center gap-1.5"
           >
-            <span>−</span>
-            <span>DECREMENT</span>
-          </motion.button>
-
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            transition={SPRING_TRANSITION}
+            -
+          </button>
+          <button
+            style={styles.iconButton}
             onClick={() => dispatch(increment())}
-            aria-label="Increment count"
-            className="h-10 bg-white/[0.03] hover:bg-white/[0.08] active:bg-white/[0.12] border border-white/[0.08] text-slate-200 rounded-lg text-xs font-semibold tracking-wide transition-colors duration-75 flex items-center justify-center gap-1.5"
           >
-            <span>+</span>
-            <span>INCREMENT</span>
-          </motion.button>
+            +
+          </button>
         </div>
 
-        {/* Step Input Form */}
-        <form onSubmit={handleStepSubmit} className="space-y-1.5">
-          <label htmlFor={inputId} className="sr-only">
-            Custom step value
-          </label>
-          <div className="flex gap-2">
-            <input
-              id={inputId}
-              type="number"
-              value={value}
-              placeholder="Custom offset..."
-              onChange={(e) => setValue(e.target.value)}
-              className="w-full h-10 px-3 bg-black/40 border border-white/[0.08] focus:border-indigo-500/80 rounded-lg text-xs text-slate-100 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all font-mono tabular-nums"
-            />
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              transition={SPRING_TRANSITION}
-              type="submit"
-              disabled={!value}
-              className="h-10 px-4 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 disabled:opacity-40 disabled:hover:bg-indigo-600 text-white text-xs font-semibold rounded-lg transition-colors duration-75 whitespace-nowrap shadow-sm"
-            >
-              APPLY
-            </motion.button>
-          </div>
-        </form>
-
-        {/* Footer */}
-        <footer className="pt-3 border-t border-white/[0.06] flex items-center justify-between">
+        <div style={styles.inputSection}>
+          <input
+            type="number"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder="Enter amount..."
+            style={styles.input}
+          />
           <button
-            onClick={() => {
-              dispatch(reset());
-              setValue("");
+            disabled={!value}
+            onClick={handleIncrementByAmount}
+            style={{
+              ...styles.primaryButton,
+              ...(!value ? styles.disabledButton : {}),
             }}
-            className="text-[11px] text-slate-500 hover:text-slate-300 font-medium transition-colors"
           >
-            Reset to zero
+            Add Amount
           </button>
-          <span className="text-[10px] text-slate-600">STATE_OK</span>
-        </footer>
+        </div>
       </div>
-    </main>
+    </div>
   );
-}
+};
+
+// Inline Styles
+const styles = {
+  container: {
+    minHeight: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f3f4f6",
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+  },
+  card: {
+    backgroundColor: "#ffffff",
+    padding: "2.5rem",
+    borderRadius: "16px",
+    boxShadow: "0 10px 25px rgba(0, 0, 0, 0.08)",
+    textAlign: "center",
+    width: "100%",
+    maxWidth: "360px",
+  },
+  subtitle: {
+    margin: 0,
+    fontSize: "0.875rem",
+    textTransform: "uppercase",
+    letterSpacing: "0.05em",
+    color: "#6b7280",
+    fontWeight: "600",
+  },
+  counterDisplay: {
+    fontSize: "4rem",
+    margin: "1rem 0 1.5rem",
+    color: "#111827",
+    fontWeight: "700",
+  },
+  buttonGroup: {
+    display: "flex",
+    gap: "0.75rem",
+    justifyContent: "center",
+    marginBottom: "1.5rem",
+  },
+  iconButton: {
+    flex: "1",
+    padding: "0.75rem",
+    fontSize: "1.5rem",
+    fontWeight: "600",
+    backgroundColor: "#e5e7eb",
+    color: "#1f2937",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer",
+    transition: "background-color 0.2s ease",
+  },
+  inputSection: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.75rem",
+  },
+  input: {
+    padding: "0.75rem",
+    fontSize: "1rem",
+    border: "1.5px solid #d1d5db",
+    borderRadius: "8px",
+    outline: "none",
+    textAlign: "center",
+  },
+  primaryButton: {
+    padding: "0.75rem",
+    fontSize: "1rem",
+    fontWeight: "600",
+    backgroundColor: "#2563eb",
+    color: "#ffffff",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer",
+    transition: "background-color 0.2s ease",
+  },
+  disabledButton: {
+    backgroundColor: "#9ca3af",
+    cursor: "not-allowed",
+  },
+};
+
+export default App;
