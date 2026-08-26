@@ -16,6 +16,7 @@ const App = () => {
   return (
     <div>
       <img src={image} alt="Image...." />
+      <h1>Hello world</h1>
     </div>
   );
 };
