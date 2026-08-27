@@ -16,7 +16,10 @@ const App = () => {
   return (
     <div>
       <img src={image} alt="Image...." />
-      <h1>Hello world from Muzammil Ali</h1>
+      <h1>Hello world from Muzammil Ali</h1> 
+      <h1>Hello world from Muzammil Ali</h1> 
+      <h1>Hello world from Muzammil Ali</h1> 
+      <h1>Hello world from Muzammil Ali</h1> 
     </div>
   );
 };
