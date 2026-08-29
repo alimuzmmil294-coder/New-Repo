@@ -6,6 +6,7 @@ const Hello = () => {
         <h1>This is the hello component</h1>
         <h1>Muzmamil Ali Khan bin Yousaf Ali Khan</h1>
         <h1>I have four brothers and one sister!</h1>
+        <h1>My friends names are: Umar, Shakir, Hassan, Huzaifa!</h1>
         
       
     </div>
