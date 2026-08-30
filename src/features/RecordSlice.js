@@ -73,11 +73,28 @@ const recordSlice = createSlice({
       const { id, data } = action.payload;
 
       const index = state.items.findIndex((r) => r.id === id);
-
       if (index !== -1) {
-        state.items[index] = { ...state.items[index], ...data };
-        localStorage.setItem("employeeRecords", JSON.stringify(state.items));
       }
+      state.items[index] = { ...state.items[index], ...data };
+      localStorage.setItem("employeeRecords", JSON.stringify(state.items));
+    },
+
+    // Delete Records
+    deleteRecord: (state, action) => {
+      state.items = state.items.filter((r) => r.id !== action.payload);
+      localStorage.setItem("employeeRecords", JSON.stringify(state.items));
+    },
+
+    //  Search Records
+    setSearchTerm: (state, action) => {
+      state.searchTerms = action.payload;
+    },
+
+    // Reset Records
+    resetRecords: (state, action) => {
+      state.items = demoRecords;
+      state.nextId = CalculateNextId(demoRecords);
+      localStorage.setItem("employeeRecords", JSON.stringify(demoRecords));
     },
   },
 });
