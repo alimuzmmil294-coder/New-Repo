@@ -3,7 +3,7 @@ import RecordModel from "./RecordModel";
 
 export default function EmployeeManagementUI() {
   return (
-    <div className="min-h-screen bg-gray-100 p-8 font-sans">
+    <div className="min-h-screen font-mono bg-gray-100 p-8">
       <div className="max-w-5xl mx-auto space-y-4">
         {/* Header Section */}
         <div className="bg-white p-6 rounded-md shadow-sm border border-gray-200">
@@ -15,7 +15,7 @@ export default function EmployeeManagementUI() {
           </p>
         </div>
 
-        {/* Search and Action Bar */}
+
         <div className="bg-white p-4 rounded-md shadow-sm border border-gray-200 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="relative w-full md:w-3/4">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400 text-sm">
@@ -71,7 +71,7 @@ export default function EmployeeManagementUI() {
           </div>
         </div>
       </div>
-      <RecordModel/>
+      {/* <RecordModel/> */}
     </div>
   );
 }

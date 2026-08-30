@@ -58,7 +58,6 @@ const recordSlice = createSlice({
     nextId: CalculateNextId(GetDataFromLocalStorage()),
   },
   reducers: {
-
     // Add the new records
     addRecord: (state, action) => {
       const newRecord = { id: state.nextId, ...action.payload };
@@ -68,9 +67,21 @@ const recordSlice = createSlice({
       localStorage.setItem("EmployeesRecords: ", JSON.stringify(state.items));
       state.nextId = CalculateNextId(state.items);
     },
+
+    // Update Records
+    updateRecord: (state, action) => {
+      const { id, data } = action.payload;
+
+      const index = state.items.findIndex((r) => r.id === id);
+
+      if (index !== -1) {
+        state.items[index] = { ...state.items[index], ...data };
+        localStorage.setItem("employeeRecords", JSON.stringify(state.items));
+      }
+    },
   },
 });
 
-const {addRecord} = recordSlice.actions;
+const { addRecord } = recordSlice.actions;
 
 export default recordSlice.reducer;
