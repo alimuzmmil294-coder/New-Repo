@@ -7,43 +7,48 @@ const demoRecords = [
     name: "Ahmad Hassan",
     role: "Frontend Developer",
     email: "ahmad.hassan@example.com",
+    phone: "+92 300 1234567",
   },
   {
     id: 2,
     name: "Zainab Khan",
     role: "Backend Developer",
     email: "zainab.khan@example.com",
+    phone: "+92 312 9876543",
   },
   {
     id: 3,
     name: "Bilal Shah",
     role: "UI/UX Designer",
     email: "bilal.shah@example.com",
+    phone: "+92 333 4567890",
   },
   {
     id: 4,
     name: "Sara Ahmed",
     role: "Project Manager",
     email: "sara.ahmed@example.com",
+    phone: "+92 321 6543210",
   },
   {
     id: 5,
     name: "Hamza Malik",
     role: "DevOps Engineer",
     email: "hamza.malik@example.com",
+    phone: "+92 345 7890123",
   },
 ];
 
 // Function to calcute next id
 const CalculateNextId = (records) => {
   if (!records || records.length === 0) return 1;
-  return Math.max(...records.map((r) => r.id));
+  return Math.max(...records.map((r) => r.id)) + 1;
 };
 
 // Function for getting data from LocalStorage...
 const GetDataFromLocalStorage = () => {
   try {
-    const savedRecord = localStorage.getItem("EmployeesRecords");
+    const savedRecord = localStorage.getItem("employeesRecords");
     return savedRecord ? JSON.parse(savedRecord) : demoRecords;
   } catch (error) {
     console.error("Error! something went wrong...");
@@ -51,7 +56,7 @@ const GetDataFromLocalStorage = () => {
 };
 
 const recordSlice = createSlice({
-  name: "EmployeeRecord",
+  name: "employeeRecord",
   initialState: {
     items: GetDataFromLocalStorage(),
     searchTerms: "",
@@ -64,7 +69,7 @@ const recordSlice = createSlice({
 
       state.items.push(newRecord);
 
-      localStorage.setItem("EmployeesRecords: ", JSON.stringify(state.items));
+      localStorage.setItem("employeesRecords", JSON.stringify(state.items));
       state.nextId = CalculateNextId(state.items);
     },
 
@@ -99,8 +104,13 @@ const recordSlice = createSlice({
   },
 });
 
-const { addRecord, setSearchTerm, resetRecords, deleteRecord } =
-  recordSlice.actions;
+export const {
+  addRecord,
+  updateRecord,
+  setSearchTerm,
+  resetRecords,
+  deleteRecord,
+} = recordSlice.actions;
 
 export const selectAllRecords = (state) => state.records.items;
 export const selectSearchTerm = (state) => state.records.searchTerms;
@@ -111,7 +121,7 @@ export const selectFilteredRecords = (state) => {
     (r) =>
       r.name.toLowerCase().includes(term) ||
       r.email.toLowerCase().includes(term) ||
-      r.position.toLowerCase().includes(term),
+      (r.role && r.role.toLowerCase().includes(term)),
   );
 };
 
