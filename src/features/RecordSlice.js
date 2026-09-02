@@ -1,5 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+const STORAGE_KEY = "employee_records"; // Single source of truth for key name
+
 // Static Data
 const demoRecords = [
   {
@@ -39,19 +41,29 @@ const demoRecords = [
   },
 ];
 
-// Function to calcute next id
+// Calculate next ID
 const CalculateNextId = (records) => {
   if (!records || records.length === 0) return 1;
   return Math.max(...records.map((r) => r.id)) + 1;
 };
 
-// Function for getting data from LocalStorage...
+// Safe LocalStorage Retrieval
 const GetDataFromLocalStorage = () => {
   try {
-    const savedRecord = localStorage.getItem("employeesRecords");
+    const savedRecord = localStorage.getItem(STORAGE_KEY);
     return savedRecord ? JSON.parse(savedRecord) : demoRecords;
   } catch (error) {
-    console.error("Error! something went wrong...");
+    console.error("Error reading localStorage:", error);
+    return demoRecords;
+  }
+};
+
+// Safe LocalStorage Save
+const SaveToLocalStorage = (data) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (error) {
+    console.error("Error saving to localStorage:", error);
   }
 };
 
@@ -63,43 +75,42 @@ const recordSlice = createSlice({
     nextId: CalculateNextId(GetDataFromLocalStorage()),
   },
   reducers: {
-    // Add the new records
+    // Add record
     addRecord: (state, action) => {
       const newRecord = { id: state.nextId, ...action.payload };
-
       state.items.push(newRecord);
-
-      localStorage.setItem("employeesRecords", JSON.stringify(state.items));
       state.nextId = CalculateNextId(state.items);
+      SaveToLocalStorage(state.items);
     },
 
-    // Update Records
+    // Update record
     updateRecord: (state, action) => {
       const { id, data } = action.payload;
-
       const index = state.items.findIndex((r) => r.id === id);
       if (index !== -1) {
+        state.items[index] = { ...state.items[index], ...data };
+        SaveToLocalStorage(state.items);
       }
-      state.items[index] = { ...state.items[index], ...data };
-      localStorage.setItem("employeeRecords", JSON.stringify(state.items));
     },
 
-    // Delete Records
+    // Delete record (Handles both ID directly or Object with ID)
     deleteRecord: (state, action) => {
-      state.items = state.items.filter((r) => r.id !== action.payload);
-      localStorage.setItem("employeeRecords", JSON.stringify(state.items));
+      const idToDelete =
+        typeof action.payload === "object" ? action.payload.id : action.payload;
+      state.items = state.items.filter((r) => r.id !== idToDelete);
+      SaveToLocalStorage(state.items);
     },
 
-    //  Search Records
+    // Search term
     setSearchTerm: (state, action) => {
       state.searchTerms = action.payload;
     },
 
-    // Reset Records
-    resetRecords: (state, action) => {
+    // Reset records
+    resetRecords: (state) => {
       state.items = demoRecords;
       state.nextId = CalculateNextId(demoRecords);
-      localStorage.setItem("employeeRecords", JSON.stringify(demoRecords));
+      SaveToLocalStorage(demoRecords);
     },
   },
 });
@@ -112,16 +123,22 @@ export const {
   deleteRecord,
 } = recordSlice.actions;
 
-export const selectAllRecords = (state) => state.records.items;
-export const selectSearchTerm = (state) => state.records.searchTerms;
+// Note: Change 'state.records' to match your store configuration key
+// e.g., if store has { records: recordSlice }, keep state.records
+export const selectAllRecords = (state) => state.records?.items || [];
+export const selectSearchTerm = (state) => state.records?.searchTerms || "";
 
 export const selectFilteredRecords = (state) => {
-  const term = state.records.searchTerms.toLowerCase();
-  return state.records.items.filter(
+  const items = state.records?.items || [];
+  const term = (state.records?.searchTerms || "").toLowerCase();
+
+  if (!term) return items;
+
+  return items.filter(
     (r) =>
-      r.name.toLowerCase().includes(term) ||
-      r.email.toLowerCase().includes(term) ||
-      (r.role && r.role.toLowerCase().includes(term)),
+      r.name?.toLowerCase().includes(term) ||
+      r.email?.toLowerCase().includes(term) ||
+      r.role?.toLowerCase().includes(term),
   );
 };
 
